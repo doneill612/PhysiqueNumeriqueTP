@@ -1,8 +1,10 @@
+!-- Module pour stocker des valeurs constantes --!
 module constants
 implicit none
 real :: g, R, S, P, n, l, theta0, omega_sqrd, gam, T, Tc, m
 end module
 
+!-- Le program - quand on fait la commande /nom_de_ficher.x, le code ci dessous s'execute --! 
 program ZeroFinder
 implicit none
 external :: SinFunc, SinFuncApprox, ExpFunc, TanhFunc, Landau
@@ -17,10 +19,23 @@ write(*,*) "6.e) ", Newton(TanhFunc, 1.0, 0.001)
 write(*,*) "7) ", Newton(Landau, 0.5, 0.001)
 end program
 
+!-- Function qui retourne un valeur real, qui correspond au root d'une fonction --!
+!-- parametre - func : la fonction pour laquelle on veut trouver un root --!
+!-- parametre - x0   : la position ou on commence a chercher --!
+!-- parametre - eps  : la precision qu'il faut avoir pour satisfier la recherche --!
 real function Newton(func, x0, eps)
 implicit none
+!-- parametre - f           : la valeur de la fonction 'func' a la position actuelle --!
+!-- parametre - df          : la valeur de la derivee de la fonction a la position actuelle --!
+!-- parametre - xCurrent    : la position actuelle --!
+!-- parametre - xNext       : la prochaine position pour chercher le root --!
+!-- parametre - epsCurrent  : la precision actuelle --!
+!-- parametre - root        : le root de la fonction (si il existe) --!
 real :: x0, eps, f, df, xCurrent, xNext, epsCurrent, root
+!-- parametre - i           : l'iteration du boucle acutuel --!
+!-- parametre - iMax        : le nombre d'iterations qu'on va permettre --!
 integer :: i, iMax
+!-- parametre - converges   : est-ce que on a trouve un root avec la precision eps donnee? --!
 logical :: converges
 i = 0
 iMax = 10000
@@ -53,6 +68,11 @@ endif
 Newton = root
 end function
 
+!-- Subroutine qui calcule la valeur de sin(x) et sin'(x) pour un x donne --!
+!-- A noter : on definie f'(x) = cos(x), c'est a dire on n'utilise pas une approximation --!
+!-- parametre - x  : x donne --!
+!-- parametre - f  : valuer de la fonction f(x) a la position x --!
+!-- parametre - df : valuer de df(x) a la position x --!
 subroutine SinFunc(x, f, df)
 implicit none
 real :: x, f, df
@@ -60,6 +80,11 @@ f = sin(x)
 df = cos(x)
 end subroutine
 
+!-- Subroutine qui calcule la valeur de sin(x) et sin'(x) pour un x donne --!
+!-- A noter : on definie f'(x) = [sin(x + dx/2) - sin(x - dx/2)] / dx, c'est a dire on utilise une approximation --!
+!-- parametre - x  : x donne --!
+!-- parametre - f  : valuer de la fonction f(x) a la position x --!
+!-- parametre - df : valuer de df(x) a la position x --!
 subroutine SinFuncApprox(x, f, df)
 implicit none
 real :: x, f, df, step
@@ -68,6 +93,10 @@ f = sin(x)
 df = (sin(x + step / 2.0) - sin(x - step / 2.0)) / step
 end subroutine
 
+!-- Subroutine qui calcule la valeur de exp(x) et exp'(x) pour un x donne --!
+!-- parametre - x  : x donne --!
+!-- parametre - f  : valuer de la fonction f(x) a la position x --!
+!-- parametre - df : valuer de df(x) a la position x --!
 subroutine ExpFunc(x, f, df)
 implicit none
 real :: x, f, df
@@ -75,6 +104,10 @@ f = exp(x)
 df = exp(x)
 end subroutine
 
+!-- Subroutine qui calcule la valeur de f(x) = (1/2) - tanh(x) et f'(x) pour un x donne --!
+!-- parametre - x  : x donne --!
+!-- parametre - f  : valuer de la fonction f(x) a la position x --!
+!-- parametre - df : valuer de df(x) a la position x --!
 subroutine TanhFunc(x, f, df)
 implicit none
 real :: x, f, df
@@ -82,6 +115,11 @@ f = (1.0/2.0) - tanh(x - 1)
 df = -1.0 * (1.0 / cosh(1-x))**2.0
 end subroutine
 
+!-- Subroutine qui calcule la valeur de f(x) = (sin(x) / x) * (theta0^2.0 - x^2.0) - (gam * Tc / (2.0 * omega_sqrd)) et f'(x) pour un x donne --!
+!-- Ce subroutine utilise le module "constants" qu'on a definie au debut du fichier --!
+!-- parametre - x  : x donne --!
+!-- parametre - f  : valuer de la fonction f(x) a la position x --!
+!-- parametre - df : valuer de df(x) a la position x --!
 subroutine Landau(x, f, df)
 use constants
 implicit none
